@@ -26,8 +26,6 @@
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
-
-
     <dependencyManagement>
         <dependencies>
             <dependency>
