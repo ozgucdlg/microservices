@@ -1,123 +1,135 @@
-# Microservices E-Commerce Application
+# Microservices Project
 
-## Overview
-This project implements a microservices-based e-commerce application using Spring Boot. The application consists of three main services that work together to provide a complete e-commerce solution.
+This project implements a microservices-based architecture using Spring Boot and various Spring Cloud components. The system consists of multiple services that work together to provide a complete e-commerce solution.
 
 ## Services Architecture
 
-### Product Service (Port: 8080)
-- Manages product information and catalog
-- Built with Spring Boot and MongoDB
-- Handles product creation and retrieval operations
-- Database: MongoDB (Port: 27017)
+1. **Security Service** (Port: 8084)
+   - Handles user authentication and authorization
+   - JWT token-based security
+   - PostgreSQL database for user management
 
-### Inventory Service (Port: 8083)
-- Manages product inventory and stock levels
-- Built with Spring Boot and PostgreSQL
-- Handles inventory checks and updates
-- Database: PostgreSQL (Port: 5432)
+2. **Product Service** (Port: 8080)
+   - Manages product information
+   - MongoDB database for product storage
+   - RESTful APIs for product operations
 
-### Order Service (Port: 8082)
-- Manages customer orders and order processing
-- Built with Spring Boot and PostgreSQL
-- Communicates with Product and Inventory services
-- Database: PostgreSQL (Port: 5432)
+3. **Inventory Service** (Port: 8083)
+   - Manages product inventory
+   - PostgreSQL database for inventory tracking
+   - Real-time stock management
 
-## Technical Stack
+4. **Order Service** (Port: 8082)
+   - Handles order processing
+   - PostgreSQL database for order management
+   - Communicates with Product and Inventory services
 
-### Backend Technologies
+5. **Eureka Server** (Port: 8761)
+   - Service discovery and registration
+   - Enables service-to-service communication
+
+## Prerequisites
+
 - Java 17
-- Spring Boot 3.0.6
-- Spring Data JPA/MongoDB
-- Maven (Build Tool)
-- RESTful APIs
+- Maven
+- PostgreSQL
+- MongoDB
+- Docker (optional)
 
-### Databases
-- MongoDB (Product Service)
-- PostgreSQL (Inventory and Order Services)
+## Database Configuration
 
-### Additional Tools
-- Lombok
-- Spring Web
-- Spring Boot DevTools
-- Spring Boot Actuator
+### PostgreSQL Databases:
+- security_service
+- inventory_service
+- order_service
+
+Configuration:
+```properties
+username=postgres
+password=password
+```
+
+### MongoDB:
+- Database: product_service
+- Default port: 27017
 
 ## Getting Started
 
-### Prerequisites
-- Java 17 or higher
-- Maven 3.x
-- MongoDB
-- PostgreSQL
+1. Start the databases:
+   - PostgreSQL
+   - MongoDB
 
-### Installation and Setup
-
-1. Clone the repository:
+2. Start the services in order:
    ```bash
-   git clone [repository-url]
-   cd microservices-new
-   ```
+   # 1. Start Eureka Server
+   cd eureka-server
+   mvn spring-boot:run
 
-2. Configure Databases:
-   - Ensure MongoDB is running on port 27017
-   - Ensure PostgreSQL is running on port 5432
-   - Create databases:
-     - `product-service` (MongoDB)
-     - `inventoryService` (PostgreSQL)
-     - `orderService` (PostgreSQL)
+   # 2. Start Security Service
+   cd security-service
+   mvn spring-boot:run
 
-3. Build the project:
-   ```bash
-   mvn clean install
-   ```
-
-4. Start the services:
-   ```bash
-   # Start Product Service
+   # 3. Start Product Service
    cd product-service
    mvn spring-boot:run
 
-   # Start Inventory Service
-   cd ../inventory-service
+   # 4. Start Inventory Service
+   cd inventory-service
    mvn spring-boot:run
 
-   # Start Order Service
-   cd ../order-servive
+   # 5. Start Order Service
+   cd order-service
    mvn spring-boot:run
    ```
 
-## Service Endpoints
+## API Security
 
-### Product Service
-- Base URL: `http://localhost:8080`
-- Available endpoints:
-  - Product operations (GET, POST, etc.)
+The services are secured using JWT authentication. To access protected endpoints:
 
-### Inventory Service
-- Base URL: `http://localhost:8083`
-- Available endpoints:
-  - Inventory operations (GET, POST, etc.)
+1. Register a user:
+   ```http
+   POST http://localhost:8084/api/auth/register
+   Content-Type: application/json
 
-### Order Service
-- Base URL: `http://localhost:8082`
-- Available endpoints:
-  - Order operations (GET, POST, etc.)
+   {
+     "username": "user",
+     "password": "password",
+     "email": "user@example.com"
+   }
+   ```
 
-## Configuration
+2. Login to get JWT token:
+   ```http
+   POST http://localhost:8084/api/auth/login
+   Content-Type: application/json
 
-Each service has its own `application.properties` file with specific configurations:
-- Database connections
-- Server ports
-- Application-specific properties
+   {
+     "username": "user",
+     "password": "password"
+   }
+   ```
 
-## Contributing
+3. Use the JWT token in subsequent requests:
+   ```http
+   Authorization: Bearer <your_jwt_token>
+   ```
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## Service Dependencies
 
-## License
+- All services register with Eureka Server
+- Order Service depends on Product and Inventory Services
+- All services except Eureka Server require Security Service for authentication
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Monitoring and Management
+
+- Each service exposes actuator endpoints for monitoring
+- Services register with Eureka for service discovery
+- Load balancing is handled by Spring Cloud LoadBalancer
+
+## Development Notes
+
+- Services use Spring Boot 3.0.6
+- Spring Cloud for service discovery and configuration
+- RESTful APIs with proper error handling
+- Transaction management for data consistency
+- Reactive programming with WebFlux where applicable
