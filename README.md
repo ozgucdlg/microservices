@@ -14,7 +14,7 @@ This project implements a microservices-based architecture using Spring Boot and
    - MongoDB database for product storage
    - RESTful APIs for product operations
 
-3. **Inventory Service** (Port: 8083)
+3. **Inventory Service** (Port: 8085)
    - Manages product inventory
    - PostgreSQL database for inventory tracking
    - Real-time stock management
@@ -24,17 +24,13 @@ This project implements a microservices-based architecture using Spring Boot and
    - PostgreSQL database for order management
    - Communicates with Product and Inventory services
 
-5. **Eureka Server** (Port: 8761)
-   - Service discovery and registration
-   - Enables service-to-service communication
-
 ## Prerequisites
 
 - Java 17
 - Maven
-- PostgreSQL
-- MongoDB
-- Docker (optional)
+- Docker and Docker Compose
+- PostgreSQL (if running locally)
+- MongoDB (if running locally)
 
 ## Database Configuration
 
@@ -46,7 +42,7 @@ This project implements a microservices-based architecture using Spring Boot and
 Configuration:
 ```properties
 username=postgres
-password=password
+password=postgres
 ```
 
 ### MongoDB:
@@ -55,29 +51,40 @@ password=password
 
 ## Getting Started
 
+### Using Docker (Recommended)
+
+1. Build and start all services:
+   ```bash
+   docker-compose up --build
+   ```
+
+2. Access the services:
+   - Security Service: http://localhost:8084
+   - Product Service: http://localhost:8080
+   - Inventory Service: http://localhost:8085
+   - Order Service: http://localhost:8082
+
+### Manual Setup
+
 1. Start the databases:
    - PostgreSQL
    - MongoDB
 
 2. Start the services in order:
    ```bash
-   # 1. Start Eureka Server
-   cd eureka-server
-   mvn spring-boot:run
-
-   # 2. Start Security Service
+   # 1. Start Security Service
    cd security-service
    mvn spring-boot:run
 
-   # 3. Start Product Service
+   # 2. Start Product Service
    cd product-service
    mvn spring-boot:run
 
-   # 4. Start Inventory Service
+   # 3. Start Inventory Service
    cd inventory-service
    mvn spring-boot:run
 
-   # 5. Start Order Service
+   # 4. Start Order Service
    cd order-service
    mvn spring-boot:run
    ```
@@ -116,20 +123,19 @@ The services are secured using JWT authentication. To access protected endpoints
 
 ## Service Dependencies
 
-- All services register with Eureka Server
 - Order Service depends on Product and Inventory Services
-- All services except Eureka Server require Security Service for authentication
+- All services require Security Service for authentication
 
 ## Monitoring and Management
 
 - Each service exposes actuator endpoints for monitoring
-- Services register with Eureka for service discovery
-- Load balancing is handled by Spring Cloud LoadBalancer
+- Prometheus metrics available for all services
+- Logging patterns configured for better traceability
 
 ## Development Notes
 
 - Services use Spring Boot 3.0.6
-- Spring Cloud for service discovery and configuration
 - RESTful APIs with proper error handling
 - Transaction management for data consistency
-- Reactive programming with WebFlux where applicable
+- Docker support for all services
+- Multi-stage Docker builds for optimized images
